@@ -17,11 +17,11 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id',mw.checkAccountId, async (req, res, next) => {
   // KODLAR BURAYA
   try {
-    const uniqueId = await accountsModel.getById(req.params.id);
-    uniqueId ? res.json(uniqueId):res.status(404).json({ message: "account not found" })
+    res.json(req.existingAccount)
+   
   } catch (error) {
     next(error)
   }
@@ -38,20 +38,43 @@ router.post('/',mw.checkAccountPayload,mw.checkAccountNameUnique, async (req, re
     res.status(201).json(insertedData)
     
   } catch (error) {
-    
+    next(error)
   }
 })
 
-// router.put('/:id', (req, res, next) => {
-//   // KODLAR BURAYA
-// });
+router.put('/:id',mw.checkAccountPayload,mw.checkAccountId, async (req, res, next) => {
+  // KODLAR BURAYA
+  try {
+    const updatedAccountModel = {
+      name:req.body.name,
+      budget:req.body.budget
+    }
+    const updatedData = await accountsModel.updateById(req.params.id,updatedAccountModel);
+    res.status(200).json(updatedData)
+    
+  } catch (error) {
+    next(error)
+  }
 
-// router.delete('/:id', (req, res, next) => {
-//   // KODLAR BURAYA
-// })
+});
 
-// router.use((err, req, res, next) => { // eslint-disable-line
-//   // KODLAR BURAYA
-// })
+router.delete('/:id',mw.checkAccountId, async (req, res, next) => {
+  // KODLAR BURAYA
+  try {
+    await accountsModel.deleteById(req.params.id);
+    res.json({message : `Account with ${req.params.id} id deleted`})
+    
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.use((err, req, res, next) => { // eslint-disable-line
+  // KODLAR BURAYA
+  res.status((err.status || 500)).json({
+    customMessage:"Global error handler üzerinde hata oluştu",
+    message:err.message
+  })
+})
 
 module.exports = router;

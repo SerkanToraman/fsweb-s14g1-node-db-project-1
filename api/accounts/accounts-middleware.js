@@ -35,6 +35,17 @@ exports.checkAccountNameUnique = async (req, res, next) => {
   }
 }
 
-exports.checkAccountId = (req, res, next) => {
+exports.checkAccountId = async (req, res, next) => {
   // KODLAR BURAYA
+  try{
+  const isExist = await accountsModel.getById(req.params.id);
+    if(!isExist){
+      res.status(404).json({message:"account not found"})
+    }else{
+      req.existingAccount = isExist;
+      next();
+    }
+  } catch (error) {
+  next(error);
+  }
 }

@@ -1,8 +1,15 @@
 const db = require('../../data/db-config.js')
 
-const getAll = () => {
+const getAll = async (limit,sortBy,sortDir) => {
   // KODLAR BURAYA
-  return db('accounts');
+  //SQL'de yazilsaydi
+  //select * from accounts
+  //knex('users').orderBy('name', 'desc')
+  //knex.select('*').from('users').limit(10)
+  limit = limit || await db("accounts").length;
+  sortBy = sortBy || "id";
+  sortDir = sortDir || "asc";
+  return db("accounts").orderBy(sortBy,sortDir).limit(limit);
  }
 
 const getById = id => {
@@ -24,22 +31,25 @@ const create = async (account) => {
 }
 
 
-// const updateById = (id, account) => {
-//   // KODLAR BURAYA
+const updateById = async (id, account) => {
+  // KODLAR BURAYA
 
+ await db("accounts").where('id',id).update(account);
 
+  return getById(id);
 
-// }
+}
 
-// const deleteById = id => {
-//   // KODLAR BURAYA
-// }
+const deleteById = id => {
+  // KODLAR BURAYA
+  return db('accounts').where('id', id).del();
+}
 
 module.exports = {
   getAll,
   getById,
   getByName,
   create,
-  // updateById,
-  // deleteById,
+  updateById,
+  deleteById,
 }
